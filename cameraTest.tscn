@@ -1,0 +1,124 @@
+[gd_scene load_steps=12 format=3 uid="uid://b4h08ytxqach3"]
+
+[ext_resource type="Script" path="res://scenes/RemoteTransformOffset3D.gd" id="1_d7jx6"]
+[ext_resource type="Material" uid="uid://bei4evd70vir3" path="res://mats/Ground068_1K-JPG/Ground.tres" id="1_fynrh"]
+[ext_resource type="PackedScene" uid="uid://du6obgxpgnusn" path="res://assets/fir_sapling_medium_1k.gltf/fir_sapling_medium_1k.gltf" id="2_wffu6"]
+[ext_resource type="PackedScene" uid="uid://clc5dre31iskm" path="res://addons/godot-xr-tools/xr/start_xr.tscn" id="3_21pai"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_erg7x"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_u3icg"]
+sky_material = SubResource("ProceduralSkyMaterial_erg7x")
+
+[sub_resource type="Environment" id="Environment_vxlt1"]
+background_mode = 2
+sky = SubResource("Sky_u3icg")
+tonemap_mode = 3
+ssao_enabled = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_4i8f2"]
+size = Vector2(26, 16)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_4ilf3"]
+data = PackedVector3Array(13, 0, 8, -13, 0, 8, 13, 0, -8, -13, 0, 8, -13, 0, -8, 13, 0, -8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vp4mw"]
+size = Vector3(0.2, 1.8, 4)
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_0lbk1"]
+viewport_path = NodePath("Reality/SubViewport")
+
+[node name="Node3D" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_vxlt1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="FakeReality" type="Node3D" parent="."]
+
+[node name="Floor" type="MeshInstance3D" parent="FakeReality"]
+mesh = SubResource("PlaneMesh_4i8f2")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="FakeReality/Floor"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FakeReality/Floor/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_4ilf3")
+
+[node name="Room" type="Node3D" parent="FakeReality"]
+
+[node name="Wall" type="MeshInstance3D" parent="FakeReality/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, 0.9, 0)
+mesh = SubResource("BoxMesh_vp4mw")
+skeleton = NodePath("../..")
+
+[node name="Wall2" type="MeshInstance3D" parent="FakeReality/Room"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.2, 0.9, 1.9)
+mesh = SubResource("BoxMesh_vp4mw")
+skeleton = NodePath("../..")
+
+[node name="Wall3" type="MeshInstance3D" parent="FakeReality/Room"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.7, 0.9, 0)
+mesh = SubResource("BoxMesh_vp4mw")
+skeleton = NodePath("../..")
+
+[node name="Wall4" type="MeshInstance3D" parent="FakeReality/Room"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.2, 0.9, -1.9)
+mesh = SubResource("BoxMesh_vp4mw")
+skeleton = NodePath("../..")
+
+[node name="XROrigin3D" type="XROrigin3D" parent="FakeReality"]
+current = true
+
+[node name="XRCamera3D" type="XRCamera3D" parent="FakeReality/XROrigin3D"]
+current = true
+
+[node name="XRController3D" type="XRController3D" parent="FakeReality/XROrigin3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.6, 0)
+tracker = &"right_hand"
+
+[node name="RemoteTransformOffset3D" type="Node3D" parent="FakeReality/XROrigin3D/XRController3D" node_paths=PackedStringArray("remote_path")]
+script = ExtResource("1_d7jx6")
+remote_path = NodePath("../../../../Reality/SubViewport/Camera3D")
+
+[node name="Sprite3D" type="Sprite3D" parent="FakeReality/XROrigin3D/XRController3D"]
+transform = Transform3D(0.063, 0, 0, 0, 0.063, 0, 0, 0, 0.063, 0, 0, 0)
+texture = SubResource("ViewportTexture_0lbk1")
+
+[node name="Reality" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -132)
+
+[node name="Floor" type="MeshInstance3D" parent="Reality"]
+material_override = ExtResource("1_fynrh")
+mesh = SubResource("PlaneMesh_4i8f2")
+skeleton = NodePath("../..")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Reality/Floor"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Reality/Floor/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_4ilf3")
+
+[node name="fir_sapling_medium_1k" parent="Reality" instance=ExtResource("2_wffu6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.42286, 2.38419e-07, -3.02502)
+
+[node name="fir_sapling_medium_1k2" parent="Reality" instance=ExtResource("2_wffu6")]
+transform = Transform3D(-0.893904, 0, -0.448258, 0, 1, 0, 0.448258, 0, -0.893904, -1.19009, 2.38419e-07, -3.02502)
+
+[node name="fir_sapling_medium_1k3" parent="Reality" instance=ExtResource("2_wffu6")]
+transform = Transform3D(-0.842669, 0, 0.538433, 0, 1, 0, -0.538433, 0, -0.842669, 1.33269, 2.38419e-07, 4.483)
+
+[node name="fir_sapling_medium_1k4" parent="Reality" instance=ExtResource("2_wffu6")]
+transform = Transform3D(0.986791, 0, 0.162, 0, 1, 0, -0.162, 0, 0.986791, 0.194734, 2.38419e-07, 2.64117)
+
+[node name="SubViewport" type="SubViewport" parent="Reality"]
+
+[node name="Camera3D" type="Camera3D" parent="Reality/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.7, -132)
+current = true
+
+[node name="StartXR" parent="." instance=ExtResource("3_21pai")]
